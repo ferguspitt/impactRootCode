@@ -1,8 +1,11 @@
 
+'''
+You'll need to change these values
+'''
 
-'''
-Initialization
-'''
+header1Type='From'
+header1Value='yourname@domain.tld'
+filesLocation=''
 
 
 import urllib2 
@@ -13,25 +16,44 @@ import time
 from urlparse import urlparse
 import operator
 from datetime import datetime
-
-#maybe import keyword
-#import json
-#import httplib
-#from datetime import datetime
-#import sys
+import csv
 
 #some data to munch on
 
-storyList=[{'Syrian Civil War': {'wikipages':['Syrian_civil_war','Timeline_of_the_Syrian_civil_war_(January-April_2013)','Foreign_rebel_fighters_in_the_Syrian_Civil_War']}},{'Affordable Care Act': {'wikipages':['Patient_Protection_and_Affordable_Care_Act','Provisions_of_the_Patient_Protection_and_Affordable_Care_Act','Constitutional_challenges_to_the_Patient_Protection_and_Affordable_Care_Act']}},{'US Government Shutdown': {'wikipages':['United_States_federal_government_shutdown_of_2013','Government_shutdown_in_the_United_States','United_States_debt-ceiling_crisis_of_2013']}},{'NSA Snowden': {'wikipages':['Global_surveillance_disclosure','Edward_Snowden','PRISM_(surveillance_program)']}},{'Boston Marathon Bombing': {'wikipages':['Boston_Marathon_bombings','2013_Boston_Marathon','Dzhokhar_and_Tamerlan_Tsarnaev']}},{'Nelson Mandela': {'wikipages':['Death_and_state_funeral_of_Nelson_Mandela','Nelson_Mandela','Makgatho_Mandela']}},{'Pope Francis': {'wikipages':['Pope_Francis','Habemus_Papam','Cardinal_electors_for_the_papal_conclave,_2013']}},{'George Zimmerman Trial': {'wikipages':['State_of_Florida_v._George_Zimmerman','George_Zimmerman','Timeline_of_the_shooting_of_Trayvon_Martin']}},{'US Economy': {'wikipages':['Economy_of_the_United_States','Great_Recession','Economic_history_of_the_United_States']}},{'Egypt Coup': {'wikipages':['2012-13_Egyptian_protests','2013_Egyptian_coup_d\'%E9tat','Islamist_protests_in_Egypt_(July_2013%E2%80%93present)']}}]
+storyList=[{'Syrian Civil War': {'wikipages': ['Syrian_civil_war',
+    'Timeline_of_the_Syrian_civil_war_(January-April_2013)',
+    'Casualties_of_the_Syrian_Civil_War']}},
+ {'Obamacare': {'wikipages': ['Patient_Protection_and_Affordable_Care_Act',
+    'Affordable_Health_Care_for_America_Act',
+    'Constitutional_challenges_to_the_Patient_Protection_and_Affordable_Care_Act']}},
+ {'US Government Shutdown': {'wikipages': ['United_States_federal_government_shutdown_of_2013',
+    'Government_shutdown_in_the_United_States',
+    'United_States_debt-ceiling_crisis_of_2013']}},
+ {'NSA Snowden': {'wikipages': ['Global_surveillance_disclosure',
+    'Edward_Snowden',
+    'PRISM_(surveillance_program)']}},
+ {'Boston Marathon Bombing': {'wikipages': ['Boston_Marathon_bombings',
+    '2013_Boston_Marathon',
+    'Dzhokhar_and_Tamerlan_Tsarnaev']}},
+ {'Nelson Mandela Death': {'wikipages': ['Death_and_state_funeral_of_Nelson_Mandela',
+    'Nelson_Mandela',
+    'Makgatho_Mandela']}},
+ {'Pope Francis': {'wikipages': ['Pope_Francis',
+    'Theology_of_Pope_Francis',
+    'Coat_of_arms_of_Pope_Francis']}},
+ {'George Zimmerman Trial': {'wikipages': ['State_of_Florida_v._George_Zimmerman',
+    'George_Zimmerman',
+    'Shooting_of_Trayvon_Martin']}},
+ {'US Economy': {'wikipages': ['Economy_of_the_United_States',
+    'Economy_of_the_United_States_by_sector',
+    'Economic_history_of_the_United_States']}},
+ {'Egypt Coup': {'wikipages': ['Anti-Coup_Alliance',
+    '2013_Egyptian_coup_d\'%E9tat',
+    'Islamist_protests_in_Egypt_(July_2013%E2%80%93present)']}}]
 
 
-#storyList=[{'Affordable Care Act': {'wikipages':['Patient_Protection_and_Affordable_Care_Act']}}]
 
 
-
-header1Type='From'
-header1Value='your@email.here'
-filesLocation='/Users/yourLoggingLocation'
 
 
 def getPage(compiledURL,headerType,headerValue):
@@ -89,6 +111,7 @@ def extractFootNotes(topicURL):
     Footnotes=[]
     citations=topicData.findAll('span',{'class': re.compile('^citation')})
     # check for common (annoying) archiving sites:
+    #print citations
     for citation in citations:
         if len(citation.findAll('a',{'class': re.compile('^external')})) ==1:
             Footnotes.append(citation.findAll('a',{'class':re.compile('^external')})[0])
@@ -114,7 +137,7 @@ def extractFootNotes(topicURL):
                         leftoverLog.write('\n\n')
                         leftoverLog.close()
                         Footnotes.append(link)
-
+    #print Footnotes
     #OK, we should have clean footnotes, now sort them into domains, count them etc.
     URLDict={'ExternalURLs':[]}
     for footnote in Footnotes:
@@ -335,16 +358,27 @@ def countOverAllDomains(dataSource):
 smallData=runIt(storyList)
 rank=countOverAllDomains(smallData)
 
+#write out a Master List
+with open(filesLocation+'compiledResults.csv','w') as csvfile:
+    outputWriter=csv.writer(csvfile)
+    lst=['Domain','Citations']
+    outputWriter.writerow(lst) 
+    for domain in rank[0]:
+        outputWriter.writerow(domain)
+csvfile.close
+
+#write out files for each story
+for story in rank[1].keys():
+    with open(filesLocation+story+'Results.csv','w') as csvSubFile:
+        outputWriter=csv.writer(csvSubFile)
+        lst=['Domain','Citations']
+        outputWriter.writerow(lst)  
+        for domain in rank[1][story]:            
+            outputWriter.writerow(domain)
+    csvfile.close
 
 
-''' 
-Known problems:
-Known predictable aliases are corrected for though. Also, not sure how well syndication is covered; ie, propublica reporting being used on nytimes, or reuters content being used on other brands. Plenty of media organizations have in house syndications as well.
 
-    I made the decision to collapse certain brands; for example cnbc and nbc, cbs local and cbs.. Problems like "nbcbayarea.com" or 'mcclatchydc.com' are a won't fix at the moment, because the domain pattern is not predicatable. Even the canonical URL doesn't line up with the mother brand. 
-    Al Jazeera English and America are also not collapsed.
-
-'''
 
 
 
