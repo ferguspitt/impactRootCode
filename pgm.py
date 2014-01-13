@@ -1,6 +1,9 @@
 
 '''
 You'll need to change these values
+
+Feel free to use this code. If you do, I'd be thrilled to hear what you're using it for. Drop me a line at fergus@fergle.com .  If you include a credit, well that'd be lovely.
+
 '''
 
 header1Type='From'
@@ -29,7 +32,7 @@ storyList=[{'Syrian Civil War': {'wikipages': ['Syrian_civil_war',
  {'US Government Shutdown': {'wikipages': ['United_States_federal_government_shutdown_of_2013',
     'Government_shutdown_in_the_United_States',
     'United_States_debt-ceiling_crisis_of_2013']}},
- {'NSA Snowden': {'wikipages': ['Global_surveillance_disclosure',
+ {'Edward Snowden': {'wikipages': ['Global_surveillance_disclosure',
     'Edward_Snowden',
     'PRISM_(surveillance_program)']}},
  {'Boston Marathon Bombing': {'wikipages': ['Boston_Marathon_bombings',
