@@ -4,10 +4,10 @@
 # <codecell>
 
 header1Type='From'
-header1Value='name@domainNAME.ext'
-dataLocation='**YOURPLACE**/data/'
-outputLocation='**YOURPLACE**/outputs/'
-logsLocation='**YOURPLACE**/logs/'
+header1Value='name@place.edu'
+dataLocation='***YOURPLACE***/data/'
+outputLocation='***YOURPLACE***/outputs/'
+logsLocation='***YOURPLACE***/logs/'
 
 # <codecell>
 
@@ -77,6 +77,11 @@ def getPage(compiledURL,headerType,headerValue):
 
 # <codecell>
 
+def rollUp(endDomain,startDomain,startURL):
+    rollLog=open(logsLocation+endDomain+'RollUpLog.log','a')
+    rollLog.write(str(startURL)+':\n'+startDomain+'\n\n')
+    rollLog.close()
+    return endDomain
 
 def extractFootNotes(topicURL):
     topicData=BeautifulSoup(getPage(topicURL,header1Type,header1Value),'html5lib')
@@ -140,129 +145,56 @@ def extractFootNotes(topicURL):
         if domain=='':
             print 'top: '+URL     
         elif domain[-12:] =='.abcnews.com' or re.search('abc(\w*).go.com',domain):
-            rollLog=open(logsLocation+'abcnewsRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='abcnews.com'
+            domain=rollUp('abcnews.com',domain,URL)
             #print domain
         elif 'http://www.google.com/hostednews/afp/' in str(URL):
-            rollLog=open(logsLocation+'afpRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='afp.com'
+            domain=rollUp('afp.com',domain,URL)
             #print domain
         elif domain in ['aljazeera.net'] or domain[-14:] =='.aljazeera.com':
-            rollLog=open(logsLocation+'alJazzRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='aljazeera.com'
+            domain=rollUp('aljazeera.com',domain,URL)
             #print domain
         elif 'http://www.google.com/hostednews/ap/' in str(URL) or domain[-7:]=='.ap.org': #this captures some 'hosted' URLs
-            rollLog=open(logsLocation+'apRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='ap.org'
+            domain=rollUp('ap.org',domain,URL)
         elif domain[-17:] =='.baltimoresun.com':
-            rollLog=open(logsLocation+'baltimoreSunRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='baltimoresun.com'
+            domain=rollUp('baltimoresun.com',domain,URL)
         elif domain in ['bbc.co.uk','news.bbc.co.uk','bbcnews.co.uk','bbcnews.com']:
-            rollLog=open(logsLocation+'bbcRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='bbc.co.uk'
+            domain=rollUp('bbc.co.uk',domain,URL)
         elif domain in ['boston.com'] or domain[-16:] =='.bostonglobe.com':
-            rollLog=open(logsLocation+'bostonGlobeJazzRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='bostonglobe.com'
+            domain=rollUp('bostonglobe.com',domain,URL)
         elif domain[-16:] == 'businessweek.com':
-            rollLog=open(logsLocation+'BloombergRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='bloomberg.com'
+            domain=rollUp('bloomberg.com',domain,URL)
         elif domain[-13:] =='.cbslocal.com': 
-            rollLog=open(logsLocation+'cbsRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='cbsnews.com'
+            domain=rollUp('cbsnews.com',domain,URL)
         elif domain[-8:]=='.cnn.com': 
-            rollLog=open(logsLocation+'cnnRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='cnn.com'
+            domain=rollUp('cnn.com',domain,URL)
         elif domain[-11:]=='.forbes.com':
-            rollLog=open(logsLocation+'forbesRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='forbes.com'
+            domain=rollUp('forbes.com',domain,URL)
         elif domain[-7:]=='.ft.com':
-            rollLog=open(logsLocation+'ftRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='ft.com'
+            domain=rollUp('ft.com',domain,URL)
         elif domain in ['guardian.co.uk','theguardian.co.uk','theguardiannews.com','guardiannews.com','theguardian.com','m.guardiannews.com']:#deliberately verbose: there are copycat guardian brands.
-            rollLog=open(logsLocation+'guardianRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='theguardian.com'
+            domain=rollUp('theguardian.com',domain,URL)
         elif domain[-12:] == '.latimes.com':
-            rollLog=open(logsLocation+'latimesRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='latimes.com'
+            domain=rollUp('latimes.com',domain,URL)
         elif domain in ['msnbc.msn.com','msnbcmedia.msn.com'] or domain[-12:] == '.nbcnews.com' or re.search('nbc(\w*).com',domain): #too greedy?
-            rollLog=open(logsLocation+'nbcRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='nbcnews.com'
+            domain=rollUp('nbcnews.com',domain,URL)
         elif domain[-12:]== '.nytimes.com':
-            rollLog=open(logsLocation+'nytimesRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='nytimes.com'
+            domain=rollUp('nytimes.com',domain,URL)
         elif domain[-8:] == '.npr.org': 
-            rollLog=open(logsLocation+'nprRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='npr.org'
+            domain=rollUp('npr.org',domain,URL)
         elif domain[-12:]=='.reuters.com':
-            rollLog=open(logsLocation+'reutersRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='reuters.com'
+            domain=rollUp('reuters.com',domain,URL)
         elif domain[-20:]=='.orlandosentinel.com':
-            rollLog=open(logsLocation+'orlandosentinelUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='orlandosentinel.com'
+            domain=rollUp('orlandosentinel.com',domain,URL)
         elif domain[-16:]=='.telegraph.co.uk':
-            rollLog=open(logsLocation+'telegraphRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='telegraph.co.uk'
+            domain=rollUp('telegraph.co.uk',domain,URL)
         elif domain[-13:]=='.usatoday.com':
-            rollLog=open(logsLocation+'usaTodayRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='usatoday.com'
+            domain=rollUp('usatoday.com',domain,URL)
         elif domain[-15:]=='.news.yahoo.com':
-            rollLog=open(logsLocation+'yahooRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='news.yahoo.com'
+            domain=rollUp('news.yahoo.com',domain,URL)
         elif domain[-19:]=='.washingtonpost.com':
-            rollLog=open(logsLocation+'washingtonpostRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='washingtonpost.com'
-            #print domain
+            domain=rollUp('washingtonpost.com',domain,URL)
         elif domain[-8:]=='.wsj.com':
-            rollLog=open(logsLocation+'wsjRollUpLog.log','a')
-            rollLog.write(str(URL)+':\n'+domain+'\n\n')
-            rollLog.close()
-            domain='wsj.com'
+            domain=rollUp('wsj.com',domain,URL)
         
         #print 'passing domain to checkeddomain'
         checkeddomain=domain
@@ -412,6 +344,9 @@ def getTimeLabel():
     return tt[0:10]+" "+tt[-4:]
 
 
+# <codecell>
+
+#lclStoryDict={}
 
 # <codecell>
 
@@ -468,7 +403,7 @@ def writeOutPuts(inputDict):
 
 wikiNewsToJson('runningDates.json')
 storyDict=loadData('runningDates.json')
-
+#CurrentTopicsDict=loadData('June23Stories.json')
 
 # <codecell>
 
