@@ -1,17 +1,14 @@
-# -*- coding: utf-8 -*-
-# <nbformat>3.0</nbformat>
 
-# <codecell>
 
 header1Type='From'
-header1Value='name@place.edu'
-dataLocation='***YOURPLACE***/data/'
-outputLocation='***YOURPLACE***/outputs/'
-logsLocation='***YOURPLACE***/logs/'
+header1Value='yourname@domain.edu'
+dataLocation='***YourPlace***/data/'
+outputLocation='***YourPlace***/outputs/'
+logsLocation='***YourPlace***/logs/'
 
-# <codecell>
 
-%pylab inline
+
+
 import urllib2 
 import html5lib
 import json
@@ -23,8 +20,6 @@ import operator
 from datetime import datetime
 import csv
 import matplotlib.pyplot as plt
-
-# <codecell>
 
 
 
@@ -75,7 +70,7 @@ def getPage(compiledURL,headerType,headerValue):
     print "called: "+ compiledURL;
     return data
 
-# <codecell>
+
 
 def rollUp(endDomain,startDomain,startURL):
     rollLog=open(logsLocation+endDomain+'RollUpLog.log','a')
@@ -83,37 +78,33 @@ def rollUp(endDomain,startDomain,startURL):
     rollLog.close()
     return endDomain
 
+
 def extractFootNotes(topicURL):
     topicData=BeautifulSoup(getPage(topicURL,header1Type,header1Value),'html5lib')
     
     Footnotes=[]
-    citations=topicData.findAll('span',{'class': re.compile('^citation')})
+    #citations=topicData.findAll('span',{'class': re.compile('^citation')})
+    references=topicData.findAll('span',{'class': re.compile('^reference')})
     # check for common (annoying) archiving sites:
     #print citations
-    for citation in citations:
-        if len(citation.findAll('a',{'class': re.compile('^external')})) ==1:
-            Footnotes.append(citation.findAll('a',{'class':re.compile('^external')})[0])
+    #print references
+    for reference in references:
+        if len(reference.findAll('a',{'class': re.compile('^external')})) ==1:
+            Footnotes.append(reference.findAll('a',{'class':re.compile('^external')})[0])
         else:
-            if len(citation.findAll('a',{'class': re.compile('^external')})) >1:
-                for link in citation.findAll('a',{'class': re.compile('^external')}):
+            if len(reference.findAll('a',{'class': re.compile('^external')})) >1:
+                for link in reference.findAll('a',{'class': re.compile('^external')}):
                     archiveService=['webcitation.org','web.archive.org','archive.is','dx.doi.org']
                     href=str(link.get('href'))
                     if any(x in href for x in archiveService):
-                        webcitationLog=open(logsLocation+'badcitationLog.log','a')
-                        problemcite=str(link.get('href'))+' triggered this citation condition from:'+str(citation)
-                        webcitationLog.write(topicURL+'\n')
-                        webcitationLog.write(problemcite)
-                        webcitationLog.write('\n\n')
+                        webcitationLog=open(logsLocation+'archiveServiceLog.log','a')
+                        webcitationLog.write('\n\n'+str(link.get('href'))+' triggered this citation condition from:'+str(reference)+'\n\n')
                         webcitationLog.close()
                        # print 'citation used an archive service'
                     else:
                         #print 'more than two links, we\'re choosing: '+str(link)
                         leftoverLog=open(logsLocation+'SelectionFromArchive.log','a')
-                        problemcite='Citation has more than two links, we\'re including: '+str(link.get('href'))+'\n from:'+str(citation)
-                        leftoverLog.write(topicURL+'\n')
-                        leftoverLog.write(problemcite)
-                        leftoverLog.write('\n\n')
-                        leftoverLog.close()
+                        webcitationLog.write('\n\n'+'Citation has more than two links, we\'re including: '+str(link.get('href'))+'\n from:'+str(citation)+'\n\n')
                         Footnotes.append(link)
     #print Footnotes
     #OK, we should have clean footnotes, now sort them into domains, count them etc.
@@ -121,7 +112,7 @@ def extractFootNotes(topicURL):
 
     for footnote in Footnotes:
         URL=re.findall(r'href=[\'"]?([^\'" >]+)',str(footnote))
-        if URL[0].startswith("http:") == True:
+        if URL[0].startswith("http:") == True or URL[0].startswith("https:"): #don't think I can collapse this to just "http"
             URLDict['ExternalURLs'].append(URL[0])
     #make it easier to read
     URLDict['ExternalURLs'].sort()
@@ -134,7 +125,7 @@ def extractFootNotes(topicURL):
     # get the unique domains.
     uniqueDomains={}
     checkDomainCount=0
-    #print URLDict['ExternalURLs']
+    #print URLDict
     for URL in URLDict['ExternalURLs']:
         URLLog.write(URL+'\n')
         domain =''
@@ -216,26 +207,24 @@ def extractFootNotes(topicURL):
         print 'Dropped Footnotes!: URLs Sorted By Domain=' +str(URLDict['CheckCount'])+' but Number of URLs (Raw)= '+str(URLDict['NumberOfURLs'])
     return URLDict['uniqueDomains']
 
-# <codecell>
+
 
 #Given a Wikipedia URL, we can now get the footnotes in a dictionary
-def runIt(Stories):    
+def runIt(Dates):    
     topStoryFootnotes=[]
-    for story in Stories['Stories']:
+    for date in Dates['Dates']:
         #print '\n'+story.keys()[0] #debug
         print '.'
-        key=story.keys()[0]
+        key=date.keys()[0]
         keyDict={key:{}}
-        for wikipage in story[key]:
-            #topStoryFootnotes[story]={'results'={key=wikipage}}
-            #results = extractFootNotes('http://en.wikipedia.org/wiki/'+wikipage) #maybe change this to simply take and pass the full wikipedia URL
+        for wikipage in date[key]:
             results = extractFootNotes(wikipage) 
             keyDict[key][wikipage]=results
         topStoryFootnotes.append(keyDict)
     return topStoryFootnotes
 
 
-# <codecell>
+
 
 # the function that counts the number of citations per domain.
 def countOverAllDomains(dataSource):
@@ -263,7 +252,7 @@ def countOverAllDomains(dataSource):
 
     return sorted_Domains, storyTopDomainsSorted
 
-# <codecell>
+
 
 def makePie(CSVfile,V,Title):
 
@@ -296,7 +285,7 @@ def makePie(CSVfile,V,Title):
     savefig(outputLocation+Title+'.png', bbox_inches='tight')
     plt.close()
 
-# <codecell>
+
 
 #this function goes to the current events portal, and gets wikipedia URLs for only the currently listed topics.
 def fetchTopicsInTheNews():
@@ -316,7 +305,7 @@ def fetchTopicsInTheNews():
 
     return pageLinks
 
-# <codecell>
+
 
 #
 def byteify(input):
@@ -337,37 +326,35 @@ def loadData(filename):
 
     return byteify(storyjson)
 
-# <codecell>
+
 
 def getTimeLabel():
     tt=str(time.asctime( time.localtime(time.time()) ))
     return tt[0:10]+" "+tt[-4:]
 
 
-# <codecell>
 
-#lclStoryDict={}
-
-# <codecell>
 
 def wikiNewsToJson(jsonFile):
     try:
         lclStoryDict=loadData(jsonFile)
         #see whether it has our date
-        for item in lclStoryDict['Stories']:
+        print lclStoryDict['Dates']
+        for item in lclStoryDict['Dates']:
+            
             if getTimeLabel() not in item.keys():
-                #print "we don't have the key"
-                lclStoryDict['Stories'].append({getTimeLabel():fetchTopicsInTheNews()})
+                print "we don't have the date"
+                lclStoryDict['Dates'].append({getTimeLabel():fetchTopicsInTheNews()})
                 with open(dataLocation+jsonFile, 'w+') as fp:
                     json.dump(lclStoryDict,fp)
             else:
                 print "have the date" #at the moment this structure wastes cycles, because even after it's found the date it keeps cylcing.
     except:
-        print 'some kind of failure above'
+        print "Unexpected error:", sys.exc_info()
         with open(dataLocation+jsonFile, 'w+') as fp: #so create/open a file at that location
-            json.dump({'Stories':[{getTimeLabel():fetchTopicsInTheNews()}]}, fp)
+            json.dump({'Dates':[{getTimeLabel():fetchTopicsInTheNews()}]}, fp)
 
-# <codecell>
+
 
 def writeOutPuts(inputDict):
     #this processes the data and creates csv and image files. It expects a dictionary in a particular form.
@@ -399,20 +386,13 @@ def writeOutPuts(inputDict):
         i=i+1
         print 'csv and charts saved for '+story
 
-# <codecell>
+
 
 wikiNewsToJson('runningDates.json')
-storyDict=loadData('runningDates.json')
-#CurrentTopicsDict=loadData('June23Stories.json')
+topicsInDays=loadData('runningDates.json')
+citationsDict=runIt(topicsInDays)
+writeOutPuts(citationsDict)
 
-# <codecell>
 
-smallData=runIt(storyDict)
-
-# <codecell>
-
-writeOutPuts(smallData)
-
-# <codecell>
 
 
